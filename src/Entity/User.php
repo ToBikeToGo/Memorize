@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
 use ApiPlatform\Metadata\ApiResource;
+use phpDocumentor\Reflection\Types\Collection;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
@@ -28,6 +29,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     private ?string $password = null;
+
+
+    //cards link
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Card::class, orphanRemoval: true)]
+    private Collection $cards;
 
     public function getId(): ?int
     {
@@ -97,5 +103,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    public function getCards()
+    {
+        return $this->cards;
+    }
+
+    public function setCards($cards): static
+    {
+        $this->cards = $cards;
+        return $this;
     }
 }
