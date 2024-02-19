@@ -2,13 +2,27 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
-use App\Repository\CardRepository;
+use ApiPlatform\Metadata\Get;
 use Doctrine\DBAL\Types\Types;
+use ApiPlatform\Metadata\Patch;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\CardRepository;
+use App\Controller\AnswerController;
+use ApiPlatform\Metadata\ApiResource;
+
 
 #[ORM\Entity(repositoryClass: CardRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    operations: [
+        new Get(),
+        new Patch(
+            uriTemplate: '/cards/{id}/answer',
+            read: false,
+            input: false,
+            controller: AnswerController::class
+        )
+    ]
+)]
 class Card
 {
     #[ORM\Id]
