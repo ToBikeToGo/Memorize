@@ -95,4 +95,36 @@ class AnswerTest extends ApiTestCase
         
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
+
+
+    public function testOnCorrectAnswerCardCategoryIsUpdated(): void
+    {
+        $firstCard = self::$cardRepository->findOneBy(['category' => 'FIRST']);
+
+        if (!$firstCard) {
+            $response = self::$client->request('POST', '/api/cards', [
+                'headers' => ['Content-Type' => 'application/ld+json'],
+                'json' => [
+                    'tag' => 'geography',
+                    'question' => 'What is the capital of France?',
+                    'answer' => 'Paris',
+                ]
+            ]);
+            $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
+            $firstCard = self::$cardRepository->findOneBy(['category' => 'FIRST']);
+        }
+
+        $response = self::$client->request('PATCH', '/api/cards/'.$firstCard->getId().'/answer', [
+            'headers' => ['Content-Type' => 'application/merge+patch+json'],
+            'json' => [
+                'isValid' => true
+            ]
+        ]);
+
+        $this->assertResponseStatusCodeSame(204);
+        self::bootKernel()->getContainer()->get('doctrine')->getManager()->clear();
+
+        $updatedCard = self::$cardRepository->find($firstCard->getId());
+        $this->assertEquals('SECOND', $updatedCard->getCategory());
+    }
 }
