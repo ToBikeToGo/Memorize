@@ -1,8 +1,10 @@
 api_platform:
     title: Hello API Platform
     version: 1.0.0
+    description: Leitner API Platform
     formats:
         jsonld: ['application/ld+json']
+        patch: ['application/merge-patch+json']
     docs_formats:
         jsonld: ['application/ld+json']
         jsonopenapi: ['application/vnd.openapi+json']
