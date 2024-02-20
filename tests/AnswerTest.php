@@ -6,6 +6,7 @@ use App\Entity\Card;
 use ApiPlatform\Symfony\Bundle\Test\Client;
 use Symfony\Component\HttpFoundation\Response;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use App\DataFixtures\AppFixtures;
 
 class AnswerTest extends ApiTestCase
 {
@@ -33,6 +34,9 @@ class AnswerTest extends ApiTestCase
         if (null == self::$cardRepository) {
             self::$cardRepository = $objectManager->getRepository(Card::class);
         }
+
+        $loader = new AppFixtures();
+        $loader->load($objectManager);
     }
 
     public function testCorrectAnswer(): void
@@ -84,7 +88,7 @@ class AnswerTest extends ApiTestCase
 
     public function testNotFoundCard(): void
     {
-        self::$client->request('PATCH', '/api/cards/100/answer', [
+        self::$client->request('PATCH', '/api/cards/10000000/answer', [
             'headers' => ['Content-Type' => 'application/json'],
             'json' => [
                 'answer' => true
@@ -124,5 +128,26 @@ class AnswerTest extends ApiTestCase
 
         $updatedCard = self::$cardRepository->find($firstCard->getId());
         $this->assertEquals('SECOND', $updatedCard->getCategory());
+    }
+
+
+    public function testOnWrongAnswerCardCategoryIsUpdatedToFirst(): void
+    {
+
+        $card = self::$cardRepository->findOneBy(['category' => 'SECOND']);
+
+            $response = self::$client->request('PATCH', '/api/cards/'.$card->getId().'/answer', [
+                'headers' => ['Content-Type' => 'application/merge+patch+json'],
+                'json' => [
+                    'isValid' => false
+                ]
+            ]);
+
+            $this->assertResponseStatusCodeSame(204);
+            self::bootKernel()->getContainer()->get('doctrine')->getManager()->clear();
+
+            $updatedCard = self::$cardRepository->find($card->getId());
+            $this->assertEquals('FIRST', $updatedCard->getCategory());
+
     }
 }
