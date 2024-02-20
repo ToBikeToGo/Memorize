@@ -13,7 +13,9 @@ class AnswerTest extends ApiTestCase
 
     private static $cardRepository;
 
-    private string $answerRoute = '/api/cards/1/answer';
+    private string $answerRoute = '/cards/1/answer';
+
+    private string $contentType = 'application/json';
 
     public function setUp(): void
     {
@@ -38,7 +40,7 @@ class AnswerTest extends ApiTestCase
     public function testCorrectAnswer(): void
     {
         self::$client->request('PATCH', $this->answerRoute, [
-            'headers' => ['Content-Type' => 'application/merge+patch+json'],
+            'headers' => ['Content-Type' => $this->contentType, 'Accept' => $this->contentType],
             'json' => [
                 'isValid' => true
             ]
@@ -50,7 +52,7 @@ class AnswerTest extends ApiTestCase
     public function testWrongAnswer(): void
     {
         self::$client->request('PATCH', $this->answerRoute, [
-            'headers' => ['Content-Type' => 'application/merge+patch+json'],
+            'headers' => ['Content-Type' => $this->contentType, 'Accept' => $this->contentType],
             'json' => [
                 'isValid' => false
             ]
@@ -65,7 +67,7 @@ class AnswerTest extends ApiTestCase
     public function testInvalidAnswer(): void
     {
         self::$client->request('PATCH', $this->answerRoute, [
-            'headers' => ['Content-Type' => 'application/merge+patch+json'],
+            'headers' => ['Content-Type' => $this->contentType, 'Accept' => $this->contentType],
             'json' => [
                 'isValid' => 'invalid'
             ]
@@ -74,7 +76,7 @@ class AnswerTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
 
         self::$client->request('PATCH', $this->answerRoute, [
-            'headers' => ['Content-Type' => 'application/merge+patch+json'],
+            'headers' => ['Content-Type' => $this->contentType, 'Accept' => $this->contentType],
             'json' => [
             ]
         ]);
@@ -85,7 +87,7 @@ class AnswerTest extends ApiTestCase
     public function testNotFoundCard(): void
     {
         self::$client->request('PATCH', '/api/cards/100/answer', [
-            'headers' => ['Content-Type' => 'application/json'],
+            'headers' => ['Content-Type' => $this->contentType, 'Accept' => $this->contentType],
             'json' => [
                 'answer' => true
             ]
