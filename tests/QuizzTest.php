@@ -16,6 +16,7 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 class QuizzTest extends ApiTestCase
 {
     private static Client $client;
+    private static ?EntityRepository $cardRepository = null;
 
 
     public function setUp(): void
