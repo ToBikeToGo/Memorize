@@ -29,7 +29,7 @@ class AnswerController extends AbstractController
             return new Response(status: Response::HTTP_BAD_REQUEST);
         }
 
-        if ($body['isValid'] === $card->getAnswer()) {
+        if ($body['isValid']) {
             match ($card->getCategory()) {
                 'FIRST' => $card->setCategory('SECOND'),
                 'SECOND' => $card->setCategory('THIRD'),
@@ -37,8 +37,9 @@ class AnswerController extends AbstractController
                 'FOURTH' => $card->setCategory('FIFTH'),
                 'FIFTH' => $card->setCategory('SIXTH'),
                 'SIXTH' => $card->setCategory('SEVENTH'),
-                'SEVENTH' => $card->setCategory('SEVENTH'),
+                'SEVENTH' => $card->setCategory('DONE'),
             };
+
         } else {
             $card->setCategory('FIRST');
         }
