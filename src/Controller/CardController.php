@@ -16,10 +16,12 @@ class CardController extends AbstractController
         $data = json_decode($request->getContent(), true);
 
         $constraints = new Assert\Collection([
-            'question' => [new Assert\NotBlank()],
-            'answer' => [new Assert\NotBlank()],
-            'category' => [new Assert\NotBlank()],
-            'tag' => [new Assert\NotBlank()],
+            'fields' => [
+                'question' => [new Assert\NotBlank()],
+                'answer' => [new Assert\NotBlank()],
+                'tag' => [new Assert\NotBlank()],
+            ],
+            'allowExtraFields' => true,
         ]);
 
         $violations = $validator->validate($data, $constraints);
@@ -36,11 +38,15 @@ class CardController extends AbstractController
         $card = new Card();
         $card->setQuestion($data['question']);
         $card->setAnswer($data['answer']);
-        $card->setCategory($data['category']);
+        $card->setCategory($data['category'] ?? 'FIRST');
         $card->setTag($data['tag']);
 
-        return new Response(json_encode(['id' => $card->getId()]), Response::HTTP_CREATED);
 
-
+        return new Response(json_encode(['id' => $card->getId(),
+            'question' => $card->getQuestion(),
+            'answer' => $card->getAnswer(),
+            'category' => $card->getCategory(),
+            'tag' => $card->getTag()
+            ]), Response::HTTP_CREATED);
     }
 }
