@@ -2,19 +2,36 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\GetCollection;
+use App\Controller\CardController;
+use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
 use Doctrine\DBAL\Types\Types;
 use ApiPlatform\Metadata\Patch;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\CardRepository;
 use App\Controller\AnswerController;
 use ApiPlatform\Metadata\ApiResource;
+use App\Controller\QuizzController;
+
 
 
 #[ORM\Entity(repositoryClass: CardRepository::class)]
 #[ApiResource(
     operations: [
+        new GetCollection(
+            uriTemplate: '/cards/quizz',
+            controller: QuizzController::class
+        ),
         new Get(),
+        new GetCollection(),
+        new Post(
+            uriTemplate: '/cards',
+            controller: CardController::class,
+            input: false
+
+        ),
         new Patch(
             uriTemplate: '/cards/{id}/answer',
             read: false,
@@ -37,7 +54,7 @@ class Card
     private ?string $answer = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $category = null;
+    private ?string $category = "FIRST";
 
     #[ORM\Column(length: 255)]
     private ?string $tag = null;
