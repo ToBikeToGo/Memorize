@@ -13,18 +13,12 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         for ($i = 0; $i < 20; $i++) {
-            $object = (new User())
-                ->setUuid('uuid' . $i)
-                ->setRoles(['ROLE_USER'])
-                ->setPassword('password' . $i);
-            $manager->persist($object);
 
             $object = (new Card())
                 ->setQuestion('question' . $i)
                 ->setAnswer('answer' . $i)
                 ->setTag('tag' . $i)
-                ->setCategory("FIRST")
-                ->setUser($object);
+                ->setCategory("FIRST");
 
 
             $manager->persist($object);
