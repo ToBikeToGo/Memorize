@@ -3,18 +3,27 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use Doctrine\DBAL\Types\Types;
 use ApiPlatform\Metadata\Patch;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\CardRepository;
+use ApiPlatform\Metadata\ApiFilter;
 use App\Controller\AnswerController;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 
 
 #[ORM\Entity(repositoryClass: CardRepository::class)]
+#[ApiFilter(
+    SearchFilter::class, properties: [
+        'tag' => SearchFilter::STRATEGY_IPARTIAL,
+    ]
+)]
 #[ApiResource(
     operations: [
         new Get(),
+        new GetCollection(),
         new Patch(
             uriTemplate: '/cards/{id}/answer',
             read: false,
