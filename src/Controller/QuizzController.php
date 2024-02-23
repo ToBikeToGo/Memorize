@@ -2,9 +2,14 @@
 
 namespace App\Controller;
 
+use App\Repository\CardRepository;
+use App\Service\CardService;
+use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Entity\Card;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -14,7 +19,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[AsController]
 class QuizzController extends AbstractController
 {
-    public function __construct(private EntityManagerInterface $entityManager)
+    public function __construct(private EntityManagerInterface $entityManager, private CardRepository $cardRepository, private CardService $cardService)
     {
     }
 
@@ -24,31 +29,19 @@ class QuizzController extends AbstractController
      * @param ValidatorInterface $validator
      * @return Response
      */
-    public function __invoke(Request $request, ValidatorInterface $validator): Response
+    public function __invoke(Request $request, ValidatorInterface $validator): JsonResponse
     {
-        $date = $request->query->get('date');
-        if ($date) {
-            $constraints = new Assert\Date();
-            $violations = $validator->validate($date, $constraints);
-            if (count($violations) > 0) {
-                $errors = [];
-                foreach ($violations as $violation) {
-                    $errors[] = $violation->getMessage();
-                }
-                return new Response(json_encode(['errors' => $errors]), Response::HTTP_BAD_REQUEST);
-            }
-        } else {
-            $date = date('Y-m-d');
+
+        $date = $this->cardService->validateDate($request->query->get('date'), $validator);
+        $dateTime = new DateTime($date); // Convertir la chaîne en objet DateTime
+
+        $cards = $this->cardRepository->getCardByCategoryAndFrequency($date);
+        $isQuizzDone = $this->cardService->isQuizzDoneForDate($cards, $dateTime);
+        if (!$isQuizzDone) {
+            return new JsonResponse(['error' => 'Un questionnaire a déjà été réalisé pour cette date'], Response::HTTP_BAD_REQUEST);
         }
+        $this->setCardUsedForToday($cards, $dateTime);
 
-        $repository = $this->entityManager->getRepository(Card::class);
-
-        $queryBuilder = $repository->createQueryBuilder('c');
-        $queryBuilder->where('c.category != :category')
-            ->setParameter('category', 'DONE')
-            ->orderBy('c.id', 'ASC');
-
-        $cards = $queryBuilder->getQuery()->getResult();
         $response = [];
         foreach ($cards as $card) {
             $response[] = [
@@ -60,6 +53,14 @@ class QuizzController extends AbstractController
             ];
         }
 
-        return new Response(json_encode($response), Response::HTTP_OK);
+        return new JsonResponse($response, Response::HTTP_OK);
+    }
+
+    private function setCardUsedForToday(array $cards, DateTime $date): void
+    {
+        foreach ($cards as $card) {
+            $card->setLastTimeUsed($date);
+        }
+        $this->entityManager->flush();
     }
 }

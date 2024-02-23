@@ -47,7 +47,7 @@ class CardController extends AbstractController
         $card->setCategory($data['category'] ?? 'FIRST');
         $card->setTag($data['tag']);
 
-     
+
         $this->entityManager->persist($card);
         $this->entityManager->flush();
 

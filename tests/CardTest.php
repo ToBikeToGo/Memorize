@@ -18,7 +18,7 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 class CardTest extends ApiTestCase
 {
     private static Client $client;
-    
+
     private static $cardRepository;
 
     private string $contentType = 'application/json';
