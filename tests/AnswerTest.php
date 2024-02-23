@@ -12,8 +12,9 @@ class AnswerTest extends ApiTestCase
     private static $client;
     private $cardRepository;
     private $entityManager;
-    private string $answerRoute;
+    private string $answerRoute = '/cards/1/answer';
 
+    private string $contentType = 'application/json';
     protected function setUp(): void
     {
         parent::setUp();
@@ -38,7 +39,6 @@ class AnswerTest extends ApiTestCase
             $this->entityManager->flush();
         }
 
-        $this->answerRoute = '/api/cards/'.$card->getId().'/answer';
     }
 
     protected function tearDown(): void
@@ -60,7 +60,7 @@ class AnswerTest extends ApiTestCase
         $objectManager = self::bootKernel()->getContainer()->get('doctrine')->getManager();
 
             self::$cardRepository = $objectManager->getRepository(Card::class);
-        
+
 
         $loader = new AppFixtures();
         $loader->load($objectManager);
@@ -69,7 +69,7 @@ class AnswerTest extends ApiTestCase
     public function testCorrectAnswer(): void
     {
         self::$client->request('PATCH', $this->answerRoute, [
-            'headers' => ['Content-Type' => 'application/merge+patch+json'],
+            'headers' => ['Content-Type' => $this->contentType, 'Accept' => $this->contentType],
             'json' => ['isValid' => true]
         ]);
 
@@ -79,7 +79,7 @@ class AnswerTest extends ApiTestCase
     public function testWrongAnswer(): void
     {
         self::$client->request('PATCH', $this->answerRoute, [
-            'headers' => ['Content-Type' => 'application/merge+patch+json'],
+            'headers' => ['Content-Type' => $this->contentType, 'Accept' => $this->contentType],
             'json' => [
                 'isValid' => false
             ]
@@ -92,7 +92,7 @@ class AnswerTest extends ApiTestCase
     public function testInvalidAnswer(): void
     {
         self::$client->request('PATCH', $this->answerRoute, [
-            'headers' => ['Content-Type' => 'application/merge+patch+json'],
+            'headers' => ['Content-Type' => $this->contentType, 'Accept' => $this->contentType],
             'json' => [
                 'isValid' => 'invalid'
             ]
@@ -101,7 +101,7 @@ class AnswerTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
 
         self::$client->request('PATCH', $this->answerRoute, [
-            'headers' => ['Content-Type' => 'application/merge+patch+json'],
+            'headers' => ['Content-Type' => $this->contentType, 'Accept' => $this->contentType],
             'json' => [
             ]
         ]);
@@ -112,7 +112,7 @@ class AnswerTest extends ApiTestCase
     public function testNotFoundCard(): void
     {
         self::$client->request('PATCH', '/api/cards/10000000/answer', [
-            'headers' => ['Content-Type' => 'application/json'],
+            'headers' => ['Content-Type' => $this->contentType, 'Accept' => $this->contentType],
             'json' => [
                 'answer' => true
             ]

@@ -3,10 +3,10 @@ api_platform:
     version: 1.0.0
     description: Leitner API Platform
     formats:
-        jsonld: ['application/ld+json']
-        patch: ['application/merge-patch+json']
+        json: ['application/json']
+        patch: ['application/json']
     docs_formats:
-        jsonld: ['application/ld+json']
+        json: ['application/json']
         jsonopenapi: ['application/vnd.openapi+json']
         html: ['text/html']
     defaults:
