@@ -16,6 +16,8 @@ use App\Controller\AnswerController;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use App\Controller\QuizzController;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 
 
 
@@ -29,21 +31,33 @@ use App\Controller\QuizzController;
     operations: [
         new GetCollection(
             uriTemplate: '/cards/quizz',
-            controller: QuizzController::class
+            controller: QuizzController::class,
+            normalizationContext: ['groups' => ['card:read']],
+            denormalizationContext: ['groups' => ['card:read']],
+
         ),
-        new Get(),
-        new GetCollection(),
+        new GetCollection(
+            normalizationContext: ['groups' => ['card:read']],
+            denormalizationContext: ['groups' => ['card:read']],
+
+        ),
         new Post(
             uriTemplate: '/cards',
             controller: CardController::class,
-            input: false
+            normalizationContext: ['groups' => ['card:read']],
+            denormalizationContext: ['groups' => ['card:read']],
+            input: false,
+
 
         ),
         new Patch(
             uriTemplate: '/cards/{id}/answer',
-            read: false,
+            controller: AnswerController::class,
+            normalizationContext: ['groups' => ['card:read']],
+            denormalizationContext: ['groups' => ['card:read']],
             input: false,
-            controller: AnswerController::class
+            read: false,
+
         )
     ]
 )]
@@ -55,16 +69,23 @@ class Card
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['card:read'])]
     private ?string $question = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['card:read'])]
     private ?string $answer = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['card:read'])]
     private ?string $category = "FIRST";
 
     #[ORM\Column(length: 255)]
+    #[Groups(['card:read'])]
     private ?string $tag = null;
+
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $lastTimeUsed = null;
 
     public function getId(): ?int
     {
@@ -115,6 +136,18 @@ class Card
     public function setTag(string $tag): static
     {
         $this->tag = $tag;
+
+        return $this;
+    }
+
+    public function getLastTimeUsed(): ?\DateTimeInterface
+    {
+        return $this->lastTimeUsed;
+    }
+
+    public function setLastTimeUsed(?\DateTimeInterface $lastTimeUsed): static
+    {
+        $this->lastTimeUsed = $lastTimeUsed;
 
         return $this;
     }
