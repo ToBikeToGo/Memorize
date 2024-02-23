@@ -16,12 +16,6 @@ class AnswerTest extends ApiTestCase
     private string $answerRoute = '/cards/1/answer';
 
     private string $contentType = 'application/json';
-    protected function setUp(): void
-    {
-        parent::setUp();
-        self::$client = static::createClient();
-        $this->entityManager = self::getContainer()->get(EntityManagerInterface::class);
-        $this->cardRepository = $this->entityManager->getRepository(Card::class);
 
 
     protected function setUp(): void
@@ -70,7 +64,7 @@ class AnswerTest extends ApiTestCase
     {
         $objectManager = self::bootKernel()->getContainer()->get('doctrine')->getManager();
 
-            self::$cardRepository = $objectManager->getRepository(Card::class);
+        self::$cardRepository = $objectManager->getRepository(Card::class);
 
 
         $loader = new AppFixtures();
@@ -108,7 +102,7 @@ class AnswerTest extends ApiTestCase
                 'isValid' => 'invalid'
             ]
         ]);
-        
+
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
 
         self::$client->request('PATCH', $this->answerRoute, [
@@ -128,7 +122,7 @@ class AnswerTest extends ApiTestCase
                 'answer' => true
             ]
         ]);
-        
+
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 

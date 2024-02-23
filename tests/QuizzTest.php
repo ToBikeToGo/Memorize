@@ -48,7 +48,12 @@ class QuizzTest extends ApiTestCase
         // Date donnée pour le test
         $givenDate = '2024-02-15';
         $response1 = self::$client->request('GET', '/cards/quizz?date=' . $givenDate, [
-            'headers' => ['Accept' => 'application/json']
+            [
+                'headers' => [
+                    'Accept' => $this->contentType,
+                    'Content-Type' => $this->contentType,
+                ]
+            ]
         ]);
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         // Appel de l'endpoint pour récupérer les cartes pour la deuxième fois avec la même date
@@ -82,7 +87,12 @@ class QuizzTest extends ApiTestCase
     public function testStartQuizzContainQuestionNotEmpty(): void
     {
         $response = self::$client->request('GET', '/cards/quizz', [
-            'headers' => ['Accept' => 'application/json']
+            [
+                'headers' => [
+                    'Accept' => $this->contentType,
+                    'Content-Type' => $this->contentType,
+                ]
+            ]
         ]);
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         $responseData = json_decode($response->getContent(), true);
@@ -97,7 +107,12 @@ class QuizzTest extends ApiTestCase
         $card = $objectManager->getRepository(Card::class)->findOneBy(['category' => 'FIRST']);
         $date = $card->getLastTimeUsed()->modify('+1 day')->format('Y-m-d');;
         $response = self::$client->request('GET', '/cards/quizz?date=' . $date, [
-            'headers' => ['Accept' => 'application/json']
+            [
+                'headers' => [
+                    'Accept' => $this->contentType,
+                    'Content-Type' => $this->contentType,
+                ]
+            ]
         ]);
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         $this->assertJsonResponse($response->getContent());

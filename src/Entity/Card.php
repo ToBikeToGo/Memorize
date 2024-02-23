@@ -16,7 +16,6 @@ use App\Controller\AnswerController;
 use ApiPlatform\Metadata\ApiResource;
 use App\Controller\QuizzController;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use App\Controller\QuizzController;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 
