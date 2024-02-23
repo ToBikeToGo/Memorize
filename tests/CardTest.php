@@ -18,8 +18,11 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 class CardTest extends ApiTestCase
 {
     private static Client $client;
-
+    
     private static $cardRepository;
+
+    private string $contentType = 'application/json';
+
 
     public function setUp(): void
     {
@@ -52,7 +55,9 @@ class CardTest extends ApiTestCase
      */
     public function testGetCards(): void
     {
-        $response = self::$client->request('GET', '/api/cards');
+        $response = self::$client->request('GET', '/cards',[
+            'headers' => ['Content-Type' => $this->contentType, 'Accept' => $this->contentType],
+        ]);
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         $this->assertJsonResponse($response->getContent());
     }
@@ -66,8 +71,8 @@ class CardTest extends ApiTestCase
      */
     public function testCreateCard(): void
     {
-        $response = self:: $client->request('POST', '/api/cards', [
-            'headers' => ['Content-Type' => 'application/ld+json'],
+        $response = self:: $client->request('POST', '/cards', [
+            'headers' => ['Content-Type' => $this->contentType, 'Accept' => $this->contentType],
             'json' => [
                 'tag' => 'geography',
                 'category' => 'FIRST',
@@ -82,8 +87,8 @@ class CardTest extends ApiTestCase
 
     public function testCannotCreateCardWithoutAnswer(): void
     {
-        $response = self:: $client->request('POST', '/api/cards', [
-            'headers' => ['Content-Type' => 'application/ld+json'],
+        $response = self:: $client->request('POST', '/cards', [
+            'headers' => ['Content-Type' => $this->contentType, 'Accept' => $this->contentType],
             'json' => [
                 'tag' => 'geography',
                 'category' => 'FIRST',
@@ -103,8 +108,8 @@ class CardTest extends ApiTestCase
     public function testInitialCardShouldBeOne(): void
     {
 
-        $response = self::$client->request('POST', '/api/cards', [
-            'headers' => ['Content-Type' => 'application/ld+json'],
+        $response = self::$client->request('POST', '/cards', [
+            'headers' => ['Content-Type' => $this->contentType, 'Accept' => $this->contentType],
             'json' => [
                 'tag' => 'geography',
                 'question' => 'What is the capital of France?',

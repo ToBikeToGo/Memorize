@@ -36,7 +36,7 @@ class TagTest extends ApiTestCase
 
     public function testGetCardsByTag(): void
     {
-        self::$client->request('GET', '/cards?tag=animal', [
+        self::$client->request('GET', '/cards?tag=tag0', [
             'headers' => ['Accept' => $this->contentType]
         ]);
         
@@ -50,7 +50,7 @@ class TagTest extends ApiTestCase
 
         $this->assertArrayHasKey('tag', $data[0]);
 
-        $this->assertEquals('animal', $data[0]['tag']);
+        $this->assertEquals('tag0', $data[0]['tag']);
 
     }
 
