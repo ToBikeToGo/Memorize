@@ -8,9 +8,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\ORM\EntityManagerInterface;
 
 class CardController extends AbstractController
 {
+
+    public function __construct(private EntityManagerInterface $entityManager)
+    {
+    }
+
     public function __invoke(Request $request, ValidatorInterface $validator): Response
     {
         $data = json_decode($request->getContent(), true);
@@ -40,6 +46,11 @@ class CardController extends AbstractController
         $card->setAnswer($data['answer']);
         $card->setCategory($data['category'] ?? 'FIRST');
         $card->setTag($data['tag']);
+
+
+        $this->entityManager->persist($card);
+        $this->entityManager->flush();
+
 
 
         return new Response(json_encode(['id' => $card->getId(),

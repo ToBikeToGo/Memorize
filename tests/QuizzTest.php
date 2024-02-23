@@ -18,6 +18,7 @@ class QuizzTest extends ApiTestCase
 {
     private static Client $client;
     private static $cardRepository;
+    private string $contentType = 'application/json';
 
     public function setUp(): void
     {
@@ -63,11 +64,16 @@ class QuizzTest extends ApiTestCase
      * @throws RedirectionExceptionInterface
      * @throws ClientExceptionInterface
      */
-   public function testGetQuizzWithoutDoneCategory(): void
+    public function testGetQuizzWithoutDoneCategory(): void
     {
-        $response = self::$client->request('GET', '/cards/quizz', [
-            'headers' => ['Accept' => 'application/json']
-        ]);
+        $response = self::$client->request('GET', '/cards/quizz',
+        [
+            'headers' => [
+                'Accept' => $this->contentType,
+                'Content-Type' => $this->contentType,
+            ]
+        ]
+      );
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         $this->assertJsonResponse($response->getContent());
         $this->assertStringNotContainsString('DONE', $response->getContent());

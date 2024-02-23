@@ -14,6 +14,7 @@ use App\Repository\CardRepository;
 use ApiPlatform\Metadata\ApiFilter;
 use App\Controller\AnswerController;
 use ApiPlatform\Metadata\ApiResource;
+use App\Controller\QuizzController;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use App\Controller\QuizzController;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -48,6 +49,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
             denormalizationContext: ['groups' => ['card:read']],
             input: false,
 
+
+        ),
+        new Post(
+            uriTemplate: '/cards',
+            controller: CardController::class,
+            input: false
 
         ),
         new Patch(
