@@ -45,21 +45,44 @@ class QuizzTest extends ApiTestCase
 
     public function testOnlyOneQuizzPerDay(): void
     {
+        $objectManager = self::bootKernel()->getContainer()->get('doctrine')->getManager();
+
         // Date donnée pour le test
-        $givenDate = '2024-02-15';
-        $response1 = self::$client->request('GET', '/cards/quizz?date=' . $givenDate, [
-            [
-                'headers' => [
-                    'Accept' => $this->contentType,
-                    'Content-Type' => $this->contentType,
-                ]
+        $card1 = new Card();
+        $card1->setQuestion('First Card Question for testing');
+        $card1->setAnswer('First Card Answer for testing');
+        $card1->setCategory('FIRST');
+        $card1->setTag('Testing');
+        $card1->setLastTimeUsed((new DateTime())->modify('-1 day'));
+
+        $card2 = new Card();
+        $card2->setQuestion('Second Card Question for testing');
+        $card2->setAnswer('Second Card Answer for testing');
+        $card2->setCategory('SECOND');
+        $card2->setTag('Testing');
+        $card2->setLastTimeUsed((new DateTime())->modify('-1 day'));
+        $now = date('Y-m-d');
+        $objectManager->persist($card1); // Marquez l'entité comme gérée par Doctrine
+        $objectManager->persist($card2); // Marquez l'entité comme gérée par Doctrine
+
+// Flush pour enregistrer les modifications dans la base de données
+        $objectManager->flush();
+
+        $response1 = self::$client->request('GET', '/cards/quizz?date=' . $now, [
+            'headers' => [
+                'Accept' => $this->contentType,
+                'Content-Type' => $this->contentType,
             ]
         ]);
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         // Appel de l'endpoint pour récupérer les cartes pour la deuxième fois avec la même date
-        $response2 = self::$client->request('GET', '/cards/quizz?date=' . $givenDate, [
-            'headers' => ['Accept' => 'application/json']
+        $response2 = self::$client->request('GET', '/cards/quizz?date=' . $now, [
+            'headers' => [
+                'Accept' => $this->contentType,
+                'Content-Type' => $this->contentType,
+            ]
         ]);
+
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
 
@@ -71,14 +94,13 @@ class QuizzTest extends ApiTestCase
      */
     public function testGetQuizzWithoutDoneCategory(): void
     {
-        $response = self::$client->request('GET', '/cards/quizz',
-        [
+        $response = self::$client->request('GET', '/cards/quizz', [
             'headers' => [
                 'Accept' => $this->contentType,
                 'Content-Type' => $this->contentType,
             ]
-        ]
-      );
+        ]);
+
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         $this->assertJsonResponse($response->getContent());
         $this->assertStringNotContainsString('DONE', $response->getContent());
@@ -87,13 +109,12 @@ class QuizzTest extends ApiTestCase
     public function testStartQuizzContainQuestionNotEmpty(): void
     {
         $response = self::$client->request('GET', '/cards/quizz', [
-            [
-                'headers' => [
-                    'Accept' => $this->contentType,
-                    'Content-Type' => $this->contentType,
-                ]
+            'headers' => [
+                'Accept' => $this->contentType,
+                'Content-Type' => $this->contentType,
             ]
         ]);
+
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         $responseData = json_decode($response->getContent(), true);
         foreach ($responseData as $card) {
@@ -107,13 +128,12 @@ class QuizzTest extends ApiTestCase
         $card = $objectManager->getRepository(Card::class)->findOneBy(['category' => 'FIRST']);
         $date = $card->getLastTimeUsed()->modify('+1 day')->format('Y-m-d');;
         $response = self::$client->request('GET', '/cards/quizz?date=' . $date, [
-            [
-                'headers' => [
-                    'Accept' => $this->contentType,
-                    'Content-Type' => $this->contentType,
-                ]
+            'headers' => [
+                'Accept' => $this->contentType,
+                'Content-Type' => $this->contentType,
             ]
         ]);
+
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         $this->assertJsonResponse($response->getContent());
         $data = json_decode($response->getContent(), true);
