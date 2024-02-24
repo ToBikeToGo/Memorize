@@ -34,7 +34,6 @@ class QuizzController extends AbstractController
 
         $date = $this->cardService->validateDate($request->query->get('date'), $validator);
         $dateTime = new DateTime($date); // Convertir la chaîne en objet DateTime
-
         $cards = $this->cardRepository->getCardByCategoryAndFrequency($date);
         $isQuizzDone = $this->cardService->isQuizzDoneForDate($cards, $dateTime);
         if (!$isQuizzDone) {
